@@ -48,9 +48,7 @@ namespace generator
             path = Configuration["outputPath"];
             if (int.TryParse(Configuration["journal"], out countJ) && int.TryParse(Configuration["journalFile"], out countFiles) )
             {
-                proc = new Event(Configuration["errChance"], Configuration["repeatChance"], Configuration["MachineName"], Configuration["User"], Configuration["n"], Configuration["kind"], 
-                            Configuration["CommandLine"], Configuration["dn"], Configuration["dd"], Configuration["qa"], Configuration["ProcessName"], Configuration["timeEventMin"], Configuration["timeEventMax"],
-                             Configuration["minInn"], Configuration["maxInn"], Configuration["minFid"], Configuration["maxFid"]);
+                proc = new Event(Configuration);
                
 
                 for (int i = 0; i < countJ; i++)
@@ -61,23 +59,27 @@ namespace generator
                     proc.FileName = fileName;
                     for (int j = 0; j < countFiles; j++)
                     {
-                        var file = new StreamWriter($"{path}\\{fileName}#{j}.slog");
-                        file.WriteLine(proc.Head); //Заголовог файла
-                        int countEvents;
-                        if (minEvents < maxEvents)
-                            countEvents = (int)Math.Floor((double)(new Random().Next(minEvents, maxEvents + 1) / step)) * step;
-                        else
-                            countEvents = minEvents;
-                        
-                        for (int k = 0; k < countEvents; k++)
+                        using (var file = new StreamWriter($"{path}\\{fileName}#{j}.slog"))
                         {
-                            file.WriteLine(proc.GetEvent); // Вывести событие
-                            TotalCountEvents++;
+                            file.WriteLine(proc.Head); //Заголовог файла
+
+                            int countEvents;
+                            if (minEvents < maxEvents)
+                                countEvents = (int)Math.Floor((double)(new Random().Next(minEvents, maxEvents + 1) / step)) * step;
+                            else
+                                countEvents = minEvents;
+
+                            for (int k = 0; k < countEvents; k++)
+                            {
+                                file.WriteLine(proc.GetEvent); // Вывести событие
+                                TotalCountEvents++;
+                            }
+                            file.WriteLine(proc.Tail); //Написать хвост файла
+                            proc.ChangeFile(); // Сменить файл
+                            file.Close();
+                            Console.WriteLine($"\t Создан файл: #{j,3} \t кол-во событий: {countEvents}");
                         }
-                        file.WriteLine(proc.Tail); //Написать хвост файла
-                        proc.ChangeFile(); // Сменить файл
-                        file.Close();
-                        Console.WriteLine($"\t Создан файл: #{j,3} \t кол-во событий: {countEvents}");
+                        
                     }
                     proc.ChangeLog(); // Сменить журнал
                 }

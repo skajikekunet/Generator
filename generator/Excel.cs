@@ -68,6 +68,7 @@ namespace generator
                     ExcelPackage package = new ExcelPackage(file);
                     ExcelWorksheet sheet = package.Workbook.Worksheets[0];
 
+                    #region Размер массивов inn и fid
                     var inn_size = 2;
                     var fid_size = 2;
                     while (sheet.Cells[inn_size, 1].Value != null)
@@ -81,7 +82,7 @@ namespace generator
                     }
                     inn = new string[--inn_size];
                     fid = new string[--fid_size];
-
+                    #endregion
 
                     var rs_size = 2;
                     var sp_size = 2;
@@ -100,22 +101,15 @@ namespace generator
                         sp_size++;
                     }
 
-                 
-
                     for (int i = 0; i < inn_size - 1; i++)
-                    {
                         inn[i] = sheet.Cells[i + 2, 1].Value.ToString();
-                    }
 
                     for (int i = 0; i < fid_size - 1; i++)
-                    {
                         fid[i] = sheet.Cells[i + 2, 2].Value.ToString();
-                    }
-
 
                     file.Close();
                     Console.WriteLine("Данные считаны");
-                } catch(Exception e)
+                } catch()
                 {
                     Console.WriteLine("Ошибка считывания данных с Excel");
                 }

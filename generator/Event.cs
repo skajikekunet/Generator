@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using Excel = generator.Excel_Load;
 namespace generator
@@ -6,7 +7,6 @@ namespace generator
     class Event
     {
         public double errorChance = 0.01;
-
         public double repeatChance = 0.4;
 
         private int eventTimeMin = 10;
@@ -56,37 +56,35 @@ namespace generator
 
         private Dictionary<int, Pattern> rs { get => Excel.Rs; }
 
-    private Dictionary<int, Pattern> sp { get => Excel.Sp; }
+        private Dictionary<int, Pattern> sp { get => Excel.Sp; }
 
 
-        public Event(string _err, string _repeat, string machineName,string user, string _n, string _kind, string command, string _dn, string _dd, string _qa, string _processname, string timemin, string timemax,
-            string mininn, string maxinn, string minfid, string maxfid)
+        public Event(IConfiguration Configuration)
         {
-           
-            MachineName = machineName;
-            User = user;
-            n = _n;
-            kind = _kind;
-            CommandLine = command;
-            qa = _qa;
-            dn = _dn;
-            dd = _dd;
-            ProcessName = _processname;
+            MachineName = Configuration["MachineName"];
+            User = Configuration["User"];
+            n = Configuration["n"];
+            kind = Configuration["kind"];
+            CommandLine = Configuration["CommandLine"];
+            qa = Configuration["qa"];
+            dn = Configuration["dn"];
+            dd = Configuration["dd"];
+            ProcessName = Configuration["ProcessName"];
         
             CheckRepeat();
 
-            int.TryParse(timemin, out eventTimeMin);
-            int.TryParse(timemax, out eventTimeMax);
+            int.TryParse(Configuration["timeEventMin"], out eventTimeMin);
+            int.TryParse(Configuration["timeEventMax"], out eventTimeMax);
 
-            int.TryParse(mininn, out minInn);
-            int.TryParse(maxinn, out maxInn);
-            int.TryParse(minfid, out minFid);
-            int.TryParse(maxfid, out maxFid);
+            int.TryParse(Configuration["minInn"], out minInn);
+            int.TryParse(Configuration["maxInn"], out maxInn);
+            int.TryParse(Configuration["minFid"], out minFid);
+            int.TryParse(Configuration["maxFid"], out maxFid);
 
             double err = 0.01;
             double rep = 0.1;
-            double.TryParse(_err, out err);
-            double.TryParse(_repeat, out rep);
+            double.TryParse(Configuration["errChance"], out err);
+            double.TryParse(Configuration["repeatChance"], out rep);
 
             if (err >= 0 && err <= 1) errorChance = err;
             if (rep >= 0 && rep<= 1) repeatChance = rep;
@@ -123,7 +121,6 @@ namespace generator
             {
                 onlyStatus = true;
             }
-           
         }
 
         private string Get_Event() //Получить событие
@@ -224,10 +221,7 @@ namespace generator
                 for (int i = 0; i < new Random().Next(1, 5); i++)
                 {
                     if (i >= 3 && new Random().Next(1, 4) == 2) break;
-                    
-                       
                     r += sp[new Random().Next(0, sp.Count)].Name + ',';
-
                 }
                 r = r.Substring(0, r.Length -1);
                 return r;
