@@ -81,9 +81,9 @@ namespace generator
             int.TryParse(Configuration["minFid"], out minFid);
             int.TryParse(Configuration["maxFid"], out maxFid);
 
-            double.TryParse(Configuration["errChance"], out errorChance);
-            double.TryParse(Configuration["repeatChance"], out repeatChance);
-
+            double.TryParse(Configuration["errChance"].Replace(".", ","), out errorChance);
+            double.TryParse(Configuration["repeatChance"].Replace(".", ","), out repeatChance);
+            Console.WriteLine(repeatChance + " " + errorChance);
             time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
         }
@@ -99,7 +99,7 @@ namespace generator
 
         private void CheckRepeat() // Есть ли потери событий
         {
-            if (new Random().Next(1, 5) != 4)
+            if (new Random().Next(1, 10) != 9)
             {
                 isRepeat = true;
             }
