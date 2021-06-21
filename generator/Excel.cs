@@ -109,7 +109,7 @@ namespace generator
 
                     file.Close();
                     Console.WriteLine("Данные считаны");
-                } catch()
+                } catch
                 {
                     Console.WriteLine("Ошибка считывания данных с Excel");
                 }
