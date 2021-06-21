@@ -35,19 +35,26 @@ namespace generator
         private static void Start()
         {
             int countJ; //Кол-во журналов
-            int countFiles; //Кол-во файлов
+            int minFiles; //Кол-во файлов
+            int maxFiles;
             int minEvents;
             int maxEvents;
             int step;
+            int countFiles;
 
             int.TryParse(Configuration["minEvents"], out minEvents);
             int.TryParse(Configuration["maxEvents"], out maxEvents);
             int.TryParse(Configuration["step"], out step);
 
+            int.TryParse(Configuration["journal"], out countJ);
+            int.TryParse(Configuration["minjJournalFile"], out minFiles);
+            int.TryParse(Configuration["maxjJournalFile"], out maxFiles);
+            
+            
+
             Event proc;
             path = Configuration["outputPath"];
-            if (int.TryParse(Configuration["journal"], out countJ) && int.TryParse(Configuration["journalFile"], out countFiles) )
-            {
+
                 proc = new Event(Configuration);
                 for (int i = 0; i < countJ; i++)
                 {
@@ -55,6 +62,8 @@ namespace generator
                     Console.WriteLine("Журнал: " + fileName);
 
                     proc.FileName = fileName;
+                    countFiles = new Random().Next(minFiles, maxFiles + 1);
+
                     for (int j = 0; j < countFiles; j++)
                     {
                         using (var file = new StreamWriter($"{path}\\{fileName}#{j}.slog"))
@@ -81,11 +90,7 @@ namespace generator
                     }
                     proc.ChangeLog(); // Сменить журнал
                 }
-            }
-            else
-            {
-                Console.WriteLine("Ошибка конфигурации");
-            }
+          
         }
         #endregion
 
