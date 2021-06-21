@@ -19,8 +19,11 @@ namespace generator
         public string GetEvent { get => Get_Event(); }
         public int GetFileIndex { get => fileIndex; }
 
-        public string Head { get => Get_Head(); } //заголовок
-        public string Tail { get => Get_Tail(); } //конец
+        public string Head { get => $"LI:{filename} l.MachineName={MachineName} " +
+                $"l.ProcessName={ProcessName} l.CommandLine=\"{CommandLine}\" l.Id={jIndex} " +
+                $"l.StartTime=\"{DateTime.Now}\"";
+        } 
+        public string Tail { get => $"LI^{filename}"; } //конец файла
 
         private bool isRepeat = false; //есть ли повторения cnts
         private bool onlyStatus = false; //rs
@@ -158,26 +161,16 @@ namespace generator
         }
 
 
-        private void RandomInc()   // рандомное повторение cnts
+        private void RandomInc()   // рандомное повторение cnts (потеря события)
         {
             var r = new Random().Next(1, 1000);
             
             if (r < (int)(repeatChance*1000)) 
-            {
                 countRepeat = new Random().Next(1, 4);
-               // Console.WriteLine("" + countRepeat);
-            }
-            if (isRepeat && countRepeat>0)
-            {
-                cntl++;
-            }
-            else
-            {
-                cnts++;
-            }
 
-            if (countRepeat>0)
-                countRepeat--;
+            if (isRepeat && countRepeat>0)  cntl++; else cnts++;
+
+            if (countRepeat>0) countRepeat--;
         }
 
         #region Массивы inn, fid, sp, rs
@@ -244,15 +237,6 @@ namespace generator
         #endregion
 
 
-        private string Get_Tail()
-        {
-            return $"LI^{filename}";
-        }
-        private string Get_Head()
-        {
-            return $"LI:{filename} l.MachineName={MachineName} " +
-                $"l.ProcessName={ProcessName} l.CommandLine=\"{CommandLine}\" l.Id={jIndex} " +
-                $"l.StartTime=\"{DateTime.Now}\"";
-        }
+
     }
 }

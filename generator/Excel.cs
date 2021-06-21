@@ -55,7 +55,7 @@ namespace generator
                 };
         }
 
-        public static void GetInfo(string path)
+        public static void GetInfo(string path) //Загрузка массивов inn, fid, rs, sp
         {
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
