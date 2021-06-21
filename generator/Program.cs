@@ -24,20 +24,18 @@ namespace generator
             .AddEnvironmentVariables()
             .AddCommandLine(args)
             .Build();
-            Excel_Load.GetInfo(Configuration["Excel"]);
-            /* files = new GenerationFiles(Configuration["directory"]);
-             Read_Config();*/
 
-            /*Reader rd = new Reader();
-            rd.ReadFiles();*/
+            Excel.GetInfo(Configuration["Excel"]);
+     
             Start();
             GetStat();
         }
 
+        #region Процесс генерации
         private static void Start()
         {
-            int countJ;
-            int countFiles;
+            int countJ; //Кол-во журналов
+            int countFiles; //Кол-во файлов
             int minEvents = 500;
             int maxEvents = 500;
             int step = 1;
@@ -57,16 +55,14 @@ namespace generator
 
                 for (int i = 0; i < countJ; i++)
                 {
-                    Guid g = Guid.NewGuid();
-                   
-                    string fileName = g.ToString();
+                    string fileName = Guid.NewGuid().ToString();//Названия журнала
                     Console.WriteLine("Журнал: " + fileName);
 
                     proc.FileName = fileName;
                     for (int j = 0; j < countFiles; j++)
                     {
-                        StreamWriter file = new StreamWriter($"{path}\\{fileName}#{j}.slog");
-                        file.WriteLine(proc.Head);
+                        var file = new StreamWriter($"{path}\\{fileName}#{j}.slog");
+                        file.WriteLine(proc.Head); //Заголовог файла
                         int countEvents;
                         if (minEvents < maxEvents)
                             countEvents = (int)Math.Floor((double)(new Random().Next(minEvents, maxEvents + 1) / step)) * step;
@@ -75,15 +71,15 @@ namespace generator
                         
                         for (int k = 0; k < countEvents; k++)
                         {
-                            file.WriteLine(proc.GetEvent);
+                            file.WriteLine(proc.GetEvent); // Вывести событие
                             TotalCountEvents++;
                         }
-                        file.WriteLine(proc.Tail);
-                        proc.ChangeFile();
+                        file.WriteLine(proc.Tail); //Написать хвост файла
+                        proc.ChangeFile(); // Сменить файл
                         file.Close();
                         Console.WriteLine($"\t Создан файл: #{j,3} \t кол-во событий: {countEvents}");
                     }
-                    proc.ChangeLog();
+                    proc.ChangeLog(); // Сменить журнал
                 }
             }
             else
@@ -91,9 +87,10 @@ namespace generator
                 Console.WriteLine("Ошибка конфигурации");
             }
         }
+        #endregion
 
-
-        private static void GetStat()
+        #region Статистика
+        private static void GetStat() 
         {
             Console.WriteLine("Общее количество сгенерированных событий: " + TotalCountEvents);
             Console.WriteLine("rs:");
@@ -108,7 +105,7 @@ namespace generator
                 Console.WriteLine($"{i.name} \t {i.Inc}");
             }
         }
-
+        #endregion 
 
     }
 }

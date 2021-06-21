@@ -40,7 +40,7 @@ namespace generator
         private string kind = "NavigatorExecute";
         private string qa = "logicalcatalog://rolecatalog/DemoDomain/Templates/domain.query/domain";
         private string CommandLine;
-        private string un;
+        private string un { get => $"{MachineName}\\{User}"; }
         private string dn = "DemoDomain";
         private string dd = "Тестирование";
 
@@ -69,7 +69,7 @@ namespace generator
             dn = _dn;
             dd = _dd;
             ProcessName = _processname;
-            SetUn();
+        
             CheckRepeat();
 
             int.TryParse(timemin, out eventTimeMin);
@@ -113,7 +113,7 @@ namespace generator
             }
         }
 
-        private void CheckRs() 
+        private void CheckRs()  //Есть ли ошибка в журнале
         {
             var r = new Random().Next(1, 100000);
             if (canError && !onlyStatus && r < 0.0001*100000)
@@ -131,14 +131,14 @@ namespace generator
                 $"fid=\"{GetFid()}\" " +
                 $"sp=\"{GetSp()}\"";
 
-            time += new Random().Next(eventTimeMin, eventTimeMax+1);
+            time += new Random().Next(eventTimeMin, eventTimeMax+1); // время создания события 
             RandomInc();
             CheckRs();
             ae++;
             return pattern;
         }
 
-        public void ChangeFile()
+        public void ChangeFile() //обнулить инфу при смене файла
         {   //при изменении файла
             ae = 0;
             fileIndex++;
@@ -146,14 +146,14 @@ namespace generator
 
         }
 
-        public void ChangeLog() // при изменении журнала
+        public void ChangeLog() // обнулить инфу при изменении журнала
         {
             cnts = 1;
             cntl = 0;
             fileIndex = 0;
             onlyStatus = false;
             jIndex++;
-            SetUn();
+           
             CheckCanError();
         }
 
@@ -180,6 +180,7 @@ namespace generator
                 countRepeat--;
         }
 
+        #region Массивы inn, fid, sp, rs
         private string GetInn()
         {
             string inn = "";
@@ -240,11 +241,8 @@ namespace generator
             }
         }
 
-        private void SetUn()
-        {
-            //MachineName = $"HPW{new Random().Next(10, 16)}";
-            un = $"{MachineName}\\{User}";
-        }
+        #endregion
+
 
         private string Get_Tail()
         {
