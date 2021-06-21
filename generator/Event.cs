@@ -6,15 +6,15 @@ namespace generator
 {
     class Event
     {
-        public double errorChance = 0.01;
-        public double repeatChance = 0.4;
+        public double errorChance;
+        public double repeatChance;
 
-        private int eventTimeMin = 10;
-        private int eventTimeMax = 100;
-        private int minInn = 10;
-        private int maxInn = 50;
-        private int minFid = 10;
-        private int maxFid = 50;
+        private int eventTimeMin;
+        private int eventTimeMax;
+        private int minInn;
+        private int maxInn;
+        private int minFid;
+        private int maxFid;
 
         public string GetEvent { get => Get_Event(); }
         public int GetFileIndex { get => fileIndex; }
@@ -39,13 +39,13 @@ namespace generator
         private string MachineName;
         private string ProcessName;
         private string User;
-        private string n = "EnviChildHost";
-        private string kind = "NavigatorExecute";
-        private string qa = "logicalcatalog://rolecatalog/DemoDomain/Templates/domain.query/domain";
+        private string n;
+        private string kind;
+        private string qa;
         private string CommandLine;
         private string un { get => $"{MachineName}\\{User}"; }
-        private string dn = "DemoDomain";
-        private string dd = "Тестирование";
+        private string dn;
+        private string dd;
 
         private long time;
 
@@ -81,13 +81,8 @@ namespace generator
             int.TryParse(Configuration["minFid"], out minFid);
             int.TryParse(Configuration["maxFid"], out maxFid);
 
-            double err = 0.01;
-            double rep = 0.1;
-            double.TryParse(Configuration["errChance"], out err);
-            double.TryParse(Configuration["repeatChance"], out rep);
-
-            if (err >= 0 && err <= 1) errorChance = err;
-            if (rep >= 0 && rep<= 1) repeatChance = rep;
+            double.TryParse(Configuration["errChance"], out errorChance);
+            double.TryParse(Configuration["repeatChance"], out repeatChance);
 
             time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 

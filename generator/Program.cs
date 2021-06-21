@@ -36,9 +36,9 @@ namespace generator
         {
             int countJ; //Кол-во журналов
             int countFiles; //Кол-во файлов
-            int minEvents = 500;
-            int maxEvents = 500;
-            int step = 1;
+            int minEvents;
+            int maxEvents;
+            int step;
 
             int.TryParse(Configuration["minEvents"], out minEvents);
             int.TryParse(Configuration["maxEvents"], out maxEvents);
@@ -49,8 +49,6 @@ namespace generator
             if (int.TryParse(Configuration["journal"], out countJ) && int.TryParse(Configuration["journalFile"], out countFiles) )
             {
                 proc = new Event(Configuration);
-               
-
                 for (int i = 0; i < countJ; i++)
                 {
                     string fileName = Guid.NewGuid().ToString();//Названия журнала
