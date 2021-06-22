@@ -40,8 +40,8 @@ namespace generator
         {
             CheckRepeat();
 
-            errorChance = Converter.ConverToDouble(Configuration["ErrChance"].Replace(".", ","));
-            repeatChance = Converter.ConverToDouble(Configuration["RepeatChance"].Replace(".", ","));
+            errorChance = Converter.ConverToDouble(Configuration["ErrChance"]);
+            repeatChance = Converter.ConverToDouble(Configuration["RepeatChance"]);
 
             arrays = new GetArrays(Configuration);
             fileTemplate = new FileTemplate(Configuration);
