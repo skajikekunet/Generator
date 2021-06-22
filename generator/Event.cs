@@ -16,7 +16,7 @@ namespace generator
         private int minFid;
         private int maxFid;
 
-        public string GetEvent { get => Get_Event(); }
+        public string GetEvent { get => GetEvent(); }
         public int GetFileIndex { get => fileIndex; }
 
         public string Head { get => $"LI:{filename} l.MachineName={MachineName} " +
@@ -118,7 +118,7 @@ namespace generator
             }
         }
 
-        private string Get_Event() //Получить событие
+        private string GetEvent() //Получить событие
         {
             string pattern = $"AE:{ae} n={n} cnt.s={cnts} cnt.l={cntl} kind={kind} id=\"{Guid.NewGuid()}\" qa=\"{qa}\" " +
                 $"sid=\"S-0-0-00-a0726361-1600-4fae-8c45-5fff5a92c25f\" un=\"{un}\" et={time} dn=\"{dn}\" dd=\"{dd}\" rs=\"{GetRs()}\" " +
