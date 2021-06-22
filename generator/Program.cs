@@ -21,7 +21,6 @@ namespace generator
             .AddCommandLine(args)
             .Build();
 
-            // new Reader().ReadFiles();
             Excel.GetInfo(Configuration["Excel"]);
             if (!Excel.ErrorRead)
             {
@@ -38,13 +37,11 @@ namespace generator
                 
                 for (int i = 0; i < options.CountJournals; i++)
                 {
-                    var fileName = Guid.NewGuid().ToString();//Названия журнала
-                    Console.WriteLine("Журнал: " + fileName);
-
-                    proc.FileName = fileName;
+                    proc.FileName = Guid.NewGuid().ToString();//Названия журнала
+                    Console.WriteLine("Журнал: " + proc.FileName);
                     for (int j = 0; j < options.CountFiles; j++)
                     {
-                        using (var file = new StreamWriter($"{Configuration["OutputPath"]}\\{fileName}#{j}.slog"))
+                        using (var file = new StreamWriter($"{Configuration["OutputPath"]}\\{proc.FileName}#{j}.slog"))
                         {
                             file.WriteLine(proc.Head); //Заголовог файла
                             for (int k = 0; k <options.CountEvents; k++)

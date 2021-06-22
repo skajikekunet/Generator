@@ -17,18 +17,19 @@ namespace generator
         private bool isRepeat = false; //есть ли повторения cnts
         private bool canError = true; //rs
 
+        //счетчики
         private int ae = 0;
         private int cnts = 1;
         private int cntl = 0;
-
         private int fileIndex = 0;
         private int jIndex = 1;
-        
+        private int countRepeat = 0;
+        //
 
         public string FileName { get => filename; set => filename = value; }
         private string filename = "";
 
-        private int countRepeat = 0;
+        
 
         private GetArrays arrays;
         private FileTemplate fileTemplate;
