@@ -1,16 +1,29 @@
-﻿using generator.Static;
+﻿using Autofac;
+using generator.Static;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
-using Excel = generator.Excel_Load;
 
 namespace generator
 {
+    public class ServicesModule : Autofac.Module
+    {
+        protected override void Load(ContainerBuilder builder)
+        {
+            builder.RegisterType<Excel>()
+                            .As<IExcel>()
+                           .SingleInstance();
+
+        }
+    }
+
     class Program
     {
         private static string ConfigFile = "appsettings.json";
 
         private static int TotalCountEvents = 0;
+
+        private static IContainer Excel { get; set; }
 
         private static IConfiguration Configuration;
         static void Main(string[] args)
@@ -21,12 +34,21 @@ namespace generator
             .AddCommandLine(args)
             .Build();
 
-            Excel.GetInfo(Configuration["Excel"]);
-            if (!Excel.ErrorRead)
+            var cont = new ServicesModule();
+            Excel = AutofacConfig.ConfigureExcel(Configuration["Excel"]);
+            using (var scope = Excel.BeginLifetimeScope())
             {
-                Start();
-                GetStat();
+                var writer = scope.Resolve<IExcel>();
+                writer.LoadInfo(Configuration["Excel"]);
+                Console.WriteLine(writer.ErrorRead);
+                
             }
+                     /*   Excel.LoadInfo(Configuration["Excel"]);
+                        if (!Excel.ErrorRead)
+                        {
+                            Start();
+                            GetStat();
+                        }*/
         }
 
         #region Процесс генерации

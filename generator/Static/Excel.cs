@@ -1,18 +1,28 @@
 ﻿
+using Autofac;
 using generator.Static;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace generator
 {
 
-    public static class Excel_Load
-    {
-        public static bool ErrorRead = false; //ошибка чтения файла
 
-        public static void GetInfo(string path) //Загрузка массивов inn, fid, rs, sp
+
+    public interface IExcel
+    {
+        void LoadInfo(string path);
+        bool ErrorRead { get; set; }
+    }
+
+    public class Excel: IExcel
+    {
+        //public bool errorRead = false; //ошибка чтения файла
+        public bool ErrorRead { get; set; }
+        public void LoadInfo(string path) //Загрузка массивов inn, fid, rs, sp
         {
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -70,7 +80,7 @@ namespace generator
         
         }
 
-        private static void CheckErrors()
+        private void CheckErrors()
         {
             if (Arrays.Ssid.Count != Arrays.Users.Count)
             {

@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "8inrdweDs8hCUGntEqqfYEewuirQoTacC83euhRTopbpkEqH+Vffos+P+fMOOwu0SHX/lpYq6TaBP+TqtfKS2g==",
+  "dgSpecHash": "JofYy9DrJMKRHzs0tyT1cxq7pPZCetpKa7CSGnzkHejmZW7fZRPnt7djurMghUUens+hyLlBjV9RMQYoV2pl4Q==",
   "success": true,
   "projectFilePath": "C:\\GNIVC\\generator\\generator\\generator.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Evgeny\\.nuget\\packages\\autofac\\6.2.0\\autofac.6.2.0.nupkg.sha512",
     "C:\\Users\\Evgeny\\.nuget\\packages\\epplus\\5.7.0\\epplus.5.7.0.nupkg.sha512",
     "C:\\Users\\Evgeny\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\5.0.0\\microsoft.bcl.asyncinterfaces.5.0.0.nupkg.sha512",
     "C:\\Users\\Evgeny\\.nuget\\packages\\microsoft.extensions.configuration\\5.0.0\\microsoft.extensions.configuration.5.0.0.nupkg.sha512",
@@ -50,6 +51,7 @@
     "C:\\Users\\Evgeny\\.nuget\\packages\\system.componentmodel.typeconverter\\4.3.0\\system.componentmodel.typeconverter.4.3.0.nupkg.sha512",
     "C:\\Users\\Evgeny\\.nuget\\packages\\system.data.common\\4.3.0\\system.data.common.4.3.0.nupkg.sha512",
     "C:\\Users\\Evgeny\\.nuget\\packages\\system.diagnostics.debug\\4.3.0\\system.diagnostics.debug.4.3.0.nupkg.sha512",
+    "C:\\Users\\Evgeny\\.nuget\\packages\\system.diagnostics.diagnosticsource\\4.7.1\\system.diagnostics.diagnosticsource.4.7.1.nupkg.sha512",
     "C:\\Users\\Evgeny\\.nuget\\packages\\system.diagnostics.tracing\\4.3.0\\system.diagnostics.tracing.4.3.0.nupkg.sha512",
     "C:\\Users\\Evgeny\\.nuget\\packages\\system.drawing.common\\4.7.1\\system.drawing.common.4.7.1.nupkg.sha512",
     "C:\\Users\\Evgeny\\.nuget\\packages\\system.globalization\\4.3.0\\system.globalization.4.3.0.nupkg.sha512",
