@@ -13,8 +13,8 @@ namespace generator.Static
         {
             var builder = new ContainerBuilder();
             builder.RegisterType<Excel>()
-        .As<IExcel>()
-        .WithParameters(new List<Parameter> { new NamedParameter("path", path) });
+            .As<IExcel>()
+            .WithParameters(new List<Parameter> { new NamedParameter("path", path) });
             return builder.Build();
          
         }

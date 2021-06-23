@@ -34,7 +34,6 @@ namespace generator
             .AddCommandLine(args)
             .Build();
 
-            var cont = new ServicesModule();
             Excel = AutofacConfig.ConfigureExcel(Configuration["Excel"]);
             using (var scope = Excel.BeginLifetimeScope())
             {
