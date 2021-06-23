@@ -14,6 +14,7 @@ namespace generator.Static
             var builder = new ContainerBuilder();
             builder.RegisterType<Excel>()
             .As<IExcel>()
+             .SingleInstance()
             .WithParameters(new List<Parameter> { new NamedParameter("path", path) });
             return builder.Build();
          
