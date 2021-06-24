@@ -51,9 +51,6 @@ namespace generator
                   {
                       containerBuilder.RegisterModule(new ConfigurationModule(context.Configuration));
                       containerBuilder.RegisterModule(new ExcelModule());
-                     /* containerBuilder.RegisterModule(new TemplateModule());
-                      containerBuilder.RegisterModule(new ServicesModule());*/
-
                   })
                   .UseContentRoot(Directory.GetCurrentDirectory())
           
@@ -66,11 +63,7 @@ namespace generator
                       logging.AddEventSourceLogger();
                       logging.AddDebug();
                       
-                  /*     if (context.HostingEnvironment.IsDevelopment())
-                         {
-
-                             logging.AddNLog($"nlog.{env.EnvironmentName}.config");
-                         }*/
+  
                   })
                    .ConfigureServices((context, services) =>
                  {
@@ -78,69 +71,6 @@ namespace generator
                  })
                    .Build();
         }
-
-   /* #region Процесс генерации
-    private static void Start()
-        {
-            var options = new Options(Configuration);
-            var proc = new Event(Configuration);
-                
-                for (int i = 0; i < options.CountJournals; i++)
-                {
-                    proc.FileName = Guid.NewGuid().ToString();//Названия журнала
-                    Console.WriteLine("Журнал: " + proc.FileName);
-                    for (int j = 0; j < options.CountFiles; j++)
-                    {
-                        using (var file = new StreamWriter($"{Configuration["OutputPath"]}\\{proc.FileName}#{j}.slog"))
-                        {
-                            file.WriteLine(proc.Head); //Заголовог файла
-                            for (int k = 0; k <options.CountEvents; k++)
-                            {
-                                file.WriteLine(proc.GetEvent); // Вывести событие
-                                TotalCountEvents++;
-                            }
-                            file.WriteLine(proc.Tail); //Написать хвост файла
-                            proc.ChangeFile(); // Сменить файл
-                            file.Close();
-                            Console.WriteLine($"\t Создан файл: #{j,3} \t кол-во событий: {options.CountEvents}");
-                        }
-                        
-                    }
-                    proc.ChangeLog(); // Сменить журнал
-                }
-          
-        }
-        #endregion
-
-        #region Статистика
-        private static void GetStat() 
-        {
-            Console.WriteLine("Общее количество сгенерированных событий: " + TotalCountEvents);
-            Console.WriteLine("rs:");
-            foreach (Pattern i in Arrays.Rs.Values)
-            {
-                Console.WriteLine($"{i.Inc,4} \t {i.name}" );
-            }
-
-            Console.WriteLine("Users:");
-            foreach (Pattern i in Arrays.Users.Values)
-            {
-                Console.WriteLine($"{i.Inc,4} \t {i.name}");
-            }
-
-            Console.WriteLine("qa:");
-            foreach (Pattern i in Arrays.Qa.Values)
-            {
-                Console.WriteLine($"{i.Inc,4} \t {i.name}");
-            }
-
-            Console.WriteLine("MachineName:");
-            foreach (Pattern i in Arrays.MachineName.Values)
-            {
-                Console.WriteLine($"{i.Inc,4} \t {i.name}");
-            }
-        }
-        #endregion */
 
     }
 }
