@@ -1,11 +1,12 @@
-﻿using generator.Static;
+﻿using generator.Interfaces;
+using generator.Interfaces.Templates;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 
 namespace generator
 {
-    class GetArrays //получение массивов в виде строки
+    class GetArrays: IGetArrays //получение массивов в виде строки
     {
         public string Inn { get => GetInn(); }
         public string Fid { get => GetFid(); }
@@ -19,14 +20,16 @@ namespace generator
         private int minFid;
         private int maxFid;
         
-        public bool onlyStatus = false; //rs
+        public bool onlyStatus { get; set; } //rs
 
        
-        private Dictionary<int, Pattern> rs { get => Arrays.Rs; }
+        private Dictionary<int, Pattern> rs { get => _excel.Rs; }
 
-        private Dictionary<int, Pattern> sp { get => Arrays.Sp; }
+        private Dictionary<int, Pattern> sp { get => _excel.Sp; }
 
-        public GetArrays(IConfiguration Configuration)
+        private readonly IExcel _excel;
+
+        public GetArrays(IConfiguration Configuration, IExcel excel)
         {
             minRs = Converter.ConverToInt(Configuration["MinRs"]);
             maxRs = Converter.ConverToInt(Configuration["MaxRs"]);
@@ -34,6 +37,8 @@ namespace generator
             maxInn = Converter.ConverToInt(Configuration["MaxInn"]);
             minFid = Converter.ConverToInt(Configuration["MinFid"]);
             maxFid = Converter.ConverToInt(Configuration["MaxFid"]);
+
+            _excel = excel;
         }
 
 
@@ -42,11 +47,11 @@ namespace generator
         private string GetInn()
         {
             var inn = "";
-            if (Arrays.Inn.Length > 0)
+            if (_excel.Inn.Length > 0)
             {
                 for (int i = 0; i < new Random().Next(minInn, maxInn + 1); i++)
                 {
-                    inn += Arrays.Inn[new Random().Next(0, Arrays.Inn.Length - 1)] + ',';
+                    inn += _excel.Inn[new Random().Next(0, _excel.Inn.Length - 1)] + ',';
                 }
                 inn = inn.Substring(0, inn.Length - 1);
                 return inn;
@@ -56,12 +61,12 @@ namespace generator
 
         private string GetFid()
         {
-            if (Arrays.Inn.Length > 0)
+            if (_excel.Inn.Length > 0)
             {
                 var fid = "";
                 for (int i = 0; i < new Random().Next(minFid, maxFid + 1); i++)
                 {
-                    fid += Arrays.Fid[new Random().Next(0, Arrays.Fid.Length - 1)] + ',';
+                    fid += _excel.Fid[new Random().Next(0, _excel.Fid.Length - 1)] + ',';
                 }
                 fid = fid.Substring(0, fid.Length - 1);
                 return fid;

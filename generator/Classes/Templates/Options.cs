@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using generator.Interfaces.Templates;
+using Microsoft.Extensions.Configuration;
 using System;
 
 namespace generator
 {
-    class Options //основные параметры конфига
+    class Options: IOption //основные параметры конфига
     {
         private int countJ = 0; //Кол-во журналов
         private int minFiles = 0; //Кол-во файлов

@@ -1,12 +1,14 @@
-﻿using generator.Templates;
+﻿using generator.Interfaces;
+using generator.Interfaces.Templates;
+using generator.Templates;
 using Microsoft.Extensions.Configuration;
 using System;
 namespace generator
 {
-    class Event
+    class Event: IEvent
     {
-        public double errorChance;
-        public double repeatChance;
+        private double errorChance;
+        private double repeatChance;
 
         public string GetEvent { get => GetEventF(); }
         public int GetFileIndex { get => fileIndex; }
@@ -31,26 +33,26 @@ namespace generator
 
         
 
-        private GetArrays arrays;
-        private FileTemplate fileTemplate;
-        private ShortProcess shortProcess;
+        private readonly IGetArrays _arrays;
+        private readonly IFileTemplate _fileTemplate;
+        private readonly IShortProcess _shortProcess;
 
-
-        public Event(IConfiguration Configuration)
+        
+        public Event(IConfiguration Configuration, IExcel excel)
         {
             CheckRepeat();
 
             errorChance = Converter.ConverToDouble(Configuration["ErrChance"]);
             repeatChance = Converter.ConverToDouble(Configuration["RepeatChance"]);
 
-            arrays = new GetArrays(Configuration);
-            fileTemplate = new FileTemplate(Configuration);
-            shortProcess = new ShortProcess(Configuration);
+            _arrays = new GetArrays(Configuration, excel);
+            _fileTemplate = new FileTemplate(Configuration);
+            _shortProcess = new ShortProcess(Configuration, excel);
         }
 
         private void CheckCanError() // Есть ли ошибка в журнале
         {
-            if (!arrays.onlyStatus && Converter.Random(errorChance))
+            if (!_arrays.onlyStatus && Converter.Random(errorChance))
             {
                 canError = true;
             }
@@ -66,18 +68,18 @@ namespace generator
 
         private void CheckRs()  //Есть ли ошибка в журнале
         {
-            if (canError && !arrays.onlyStatus && Converter.Random(0.0001))
+            if (canError && !_arrays.onlyStatus && Converter.Random(0.0001))
             {
-                arrays.onlyStatus = true;
+                _arrays.onlyStatus = true;
             }
         }
 
         private string GetEventF() //Получить событие
         {
-            var pattern = $"AE:{ae} n={fileTemplate.N} cnt.s={cnts} cnt.l={cntl} kind={fileTemplate.Kind} id=\"{Guid.NewGuid()}\" qa=\"{shortProcess.Qa}\" " +
-                $"sid=\"{shortProcess.Ssid}\" un=\"{shortProcess.User}\" et={fileTemplate.Time} dn=\"{fileTemplate.Dn}\" dd=\"{fileTemplate.Dd}\" rs=\"{arrays.Rs}\" " +
-                $"inn=\"{arrays.Inn}\" " +
-                $"fid=\"{arrays.Fid}\" ";
+            var pattern = $"AE:{ae} n={_fileTemplate.N} cnt.s={cnts} cnt.l={cntl} kind={_fileTemplate.Kind} id=\"{Guid.NewGuid()}\" qa=\"{_shortProcess.Qa}\" " +
+                $"sid=\"{_shortProcess.Ssid}\" un=\"{_shortProcess.User}\" et={_fileTemplate.Time} dn=\"{_fileTemplate.Dn}\" dd=\"{_fileTemplate.Dd}\" rs=\"{_arrays.Rs}\" " +
+                $"inn=\"{_arrays.Inn}\" " +
+                $"fid=\"{_arrays.Fid}\" ";
             
             RandomInc();
             CheckRs();
@@ -97,9 +99,9 @@ namespace generator
             cnts = 1;
             cntl = 0;
             fileIndex = 0;
-            arrays.onlyStatus = false;
+            _arrays.onlyStatus = false;
             jIndex++;
-            shortProcess.ChangeFirstLevel();
+            _shortProcess.ChangeFirstLevel();
             CheckCanError();
         }
 
@@ -114,8 +116,8 @@ namespace generator
 
         private string GetHead()
         {
-            return $"LI:{filename} l.MachineName={shortProcess.MachineName} " +
-                $"l.ProcessName={fileTemplate.ProcessName} l.CommandLine=\"{fileTemplate.CommandLine}\" l.Id={jIndex} " +
+            return $"LI:{filename} l.MachineName={_shortProcess.MachineName} " +
+                $"l.ProcessName={_fileTemplate.ProcessName} l.CommandLine=\"{_fileTemplate.CommandLine}\" l.Id={jIndex} " +
                 $"l.StartTime=\"{DateTime.Now}\"";
         }
 

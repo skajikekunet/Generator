@@ -1,57 +1,86 @@
 ﻿using Autofac;
-using generator.Static;
+using Autofac.Configuration;
+using Autofac.Extensions.DependencyInjection;
+using generator.Host;
+using generator.Modules;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog;
 using System;
 using System.IO;
 
 namespace generator
 {
-    public class ServicesModule : Autofac.Module
-    {
-        protected override void Load(ContainerBuilder builder)
-        {
-            builder.RegisterType<Excel>()
-                            .As<IExcel>()
-                           .SingleInstance();
 
-        }
-    }
 
     class Program
     {
         private static string ConfigFile = "appsettings.json";
-
-        private static int TotalCountEvents = 0;
-
-        private static IContainer Excel { get; set; }
-
-        private static IConfiguration Configuration;
+       
         static void Main(string[] args)
         {
-            Configuration = new ConfigurationBuilder()
-            .AddJsonFile(ConfigFile, optional: true, reloadOnChange: true)
-            .AddEnvironmentVariables()
-            .AddCommandLine(args)
-            .Build();
-
-            Excel = AutofacConfig.ConfigureExcel(Configuration["Excel"]);
-            using (var scope = Excel.BeginLifetimeScope())
+            var host = CreateHostBuilder(args);
+            using (host)
             {
-                var writer = scope.Resolve<IExcel>();
-                writer.LoadInfo(Configuration["Excel"]);
-                Console.WriteLine(writer.ErrorRead);
-                
+                host.Start();
+                host.WaitForShutdown();
             }
-                     /*   Excel.LoadInfo(Configuration["Excel"]);
-                        if (!Excel.ErrorRead)
-                        {
-                            Start();
-                            GetStat();
-                        }*/
+
         }
 
-        #region Процесс генерации
-        private static void Start()
+        public static IHost CreateHostBuilder(string[] args)
+        {
+            return new HostBuilder()
+                  .ConfigureHostConfiguration(configurationBuilder =>
+                  {
+                      configurationBuilder
+                       .AddEnvironmentVariables("DOTNET_");
+                  })
+               
+                  .ConfigureAppConfiguration((context, configurationBuilder) =>
+                  {
+                      configurationBuilder
+                        .AddJsonFile(ConfigFile)
+                        .AddEnvironmentVariables();
+                  })
+
+                  .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                  .ConfigureContainer<ContainerBuilder>((context, containerBuilder) =>
+                  {
+                      containerBuilder.RegisterModule(new ConfigurationModule(context.Configuration));
+                      containerBuilder.RegisterModule(new ExcelModule());
+                     /* containerBuilder.RegisterModule(new TemplateModule());
+                      containerBuilder.RegisterModule(new ServicesModule());*/
+
+                  })
+                  .UseContentRoot(Directory.GetCurrentDirectory())
+          
+                  .ConfigureLogging((context, logging) =>
+                  {
+                     var env = context.HostingEnvironment;
+                      logging.AddConfiguration(context.Configuration.GetSection("Logging"));
+                      
+                      logging.ClearProviders();
+                      logging.AddEventSourceLogger();
+                      logging.AddDebug();
+                      
+                  /*     if (context.HostingEnvironment.IsDevelopment())
+                         {
+
+                             logging.AddNLog($"nlog.{env.EnvironmentName}.config");
+                         }*/
+                  })
+                   .ConfigureServices((context, services) =>
+                 {
+                     services.AddHostedService<MainHostService>();
+                 })
+                   .Build();
+        }
+
+   /* #region Процесс генерации
+    private static void Start()
         {
             var options = new Options(Configuration);
             var proc = new Event(Configuration);
@@ -111,7 +140,7 @@ namespace generator
                 Console.WriteLine($"{i.Inc,4} \t {i.name}");
             }
         }
-        #endregion 
+        #endregion */
 
     }
 }
