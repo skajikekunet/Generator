@@ -13,30 +13,31 @@ namespace generator
         public string Rs { get => GetRs(); }
         public string Sp { get => GetSp(); }
 
-        private int minRs;
-        private int maxRs;
-        private int minInn;
-        private int maxInn;
-        private int minFid;
-        private int maxFid;
+        private int _minRs;
+        private int _maxRs;
+        private int _minInn;
+        private int _maxInn;
+        private int _minFid;
+        private int _maxFid;
         
         public bool onlyStatus { get; set; } //rs
 
        
-        private Dictionary<int, Pattern> rs { get => _excel.Rs; }
+        private Dictionary<int, Pattern> _rs { get => _excel.Rs; }
 
-        private Dictionary<int, Pattern> sp { get => _excel.Sp; }
+        private Dictionary<int, Pattern> _sp { get => _excel.Sp; }
 
         private readonly IExcel _excel;
-
-        public GetArrays(IConfiguration Configuration, IExcel excel)
+        private readonly IConverter _converter;
+        public GetArrays(IConfiguration Configuration, IExcel excel, IConverter converter)
         {
-            minRs = Converter.ConverToInt(Configuration["MinRs"]);
-            maxRs = Converter.ConverToInt(Configuration["MaxRs"]);
-            minInn = Converter.ConverToInt(Configuration["MinInn"]);
-            maxInn = Converter.ConverToInt(Configuration["MaxInn"]);
-            minFid = Converter.ConverToInt(Configuration["MinFid"]);
-            maxFid = Converter.ConverToInt(Configuration["MaxFid"]);
+            _converter = converter;
+            _minRs = _converter.ConverToInt(Configuration["MinRs"]);
+            _maxRs = _converter.ConverToInt(Configuration["MaxRs"]);
+            _minInn = _converter.ConverToInt(Configuration["MinInn"]);
+            _maxInn = _converter.ConverToInt(Configuration["MaxInn"]);
+            _minFid = _converter.ConverToInt(Configuration["MinFid"]);
+            _maxFid = _converter.ConverToInt(Configuration["MaxFid"]);
 
             _excel = excel;
         }
@@ -49,7 +50,7 @@ namespace generator
             var inn = "";
             if (_excel.Inn.Length > 0)
             {
-                for (int i = 0; i < new Random().Next(minInn, maxInn + 1); i++)
+                for (int i = 0; i < new Random().Next(_minInn, _maxInn + 1); i++)
                 {
                     inn += _excel.Inn[new Random().Next(0, _excel.Inn.Length - 1)] + ',';
                 }
@@ -64,7 +65,7 @@ namespace generator
             if (_excel.Inn.Length > 0)
             {
                 var fid = "";
-                for (int i = 0; i < new Random().Next(minFid, maxFid + 1); i++)
+                for (int i = 0; i < new Random().Next(_minFid, _maxFid + 1); i++)
                 {
                     fid += _excel.Fid[new Random().Next(0, _excel.Fid.Length - 1)] + ',';
                 }
@@ -77,9 +78,9 @@ namespace generator
         private string GetRs()
         {
             var r = "";
-            for (int i = 0; i < new Random().Next(minRs, maxRs+1); i++)
+            for (int i = 0; i < new Random().Next(_minRs, _maxRs + 1); i++)
             {
-                    r += rs[new Random().Next(0, rs.Count)].Name + ',';
+                    r += _rs[new Random().Next(0, _rs.Count)].Name + ',';
             }
             r = r.Substring(0, r.Length - 1);
             return r;
@@ -96,8 +97,8 @@ namespace generator
                 string r = "";
                 for (int i = 0; i < new Random().Next(1, 5); i++)
                 {
-                    if (i >= 3 && Converter.Random(0.4)) break;
-                    r += sp[new Random().Next(0, sp.Count)].Name + ',';
+                    if (i >= 3 && _converter.Random(0.4)) break;
+                    r += _sp[new Random().Next(0, _sp.Count)].Name + ',';
                 }
                 r = r.Substring(0, r.Length - 1);
                 return r;

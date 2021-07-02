@@ -7,25 +7,25 @@ namespace generator
 {
     class Event: IEvent
     {
-        private double errorChance;
-        private double repeatChance;
+        private double _errorChance;
+        private double _repeatChance;
 
         public string GetEvent { get => GetEventF(); }
-        public int GetFileIndex { get => fileIndex; }
+        public int GetFileIndex { get => _fileIndex; }
 
         public string Head { get => GetHead(); } 
         public string Tail { get => $"LI^{filename}"; } //конец файла
 
-        private bool isRepeat = false; //есть ли повторения cnts
-        private bool canError = true; //rs
+        private bool _isRepeat = false; //есть ли повторения cnts
+        private bool _canError = true; //rs
 
         //счетчики
-        private int ae = 0;
-        private int cnts = 1;
-        private int cntl = 0;
-        private int fileIndex = 0;
-        private int jIndex = 1;
-        private int countRepeat = 0;
+        private int _ae = 0;
+        private int _cnts = 1;
+        private int _cntl = 0;
+        private int _fileIndex = 0;
+        private int _jIndex = 1;
+        private int _countRepeat = 0;
         //
 
         public string FileName { get => filename; set => filename = value; }
@@ -36,39 +36,40 @@ namespace generator
         private readonly IGetArrays _arrays;
         private readonly IFileTemplate _fileTemplate;
         private readonly IShortProcess _shortProcess;
+        private readonly IConverter _converter;
 
-        
-        public Event(IConfiguration Configuration, IExcel excel)
+
+        public Event(IConfiguration configuration, IExcel excel, IConverter converter)
         {
+            _converter = converter;
             CheckRepeat();
+            _errorChance = _converter.ConverToDouble(configuration["ErrChance"]);
+            _repeatChance = _converter.ConverToDouble(configuration["RepeatChance"]);
 
-            errorChance = Converter.ConverToDouble(Configuration["ErrChance"]);
-            repeatChance = Converter.ConverToDouble(Configuration["RepeatChance"]);
-
-            _arrays = new GetArrays(Configuration, excel);
-            _fileTemplate = new FileTemplate(Configuration);
-            _shortProcess = new ShortProcess(Configuration, excel);
+            _arrays = new GetArrays(configuration, excel, converter);
+            _fileTemplate = new FileTemplate(configuration, converter);
+            _shortProcess = new ShortProcess(configuration, excel, converter);
         }
 
         private void CheckCanError() // Есть ли ошибка в журнале
         {
-            if (!_arrays.onlyStatus && Converter.Random(errorChance))
+            if (!_arrays.onlyStatus && _converter.Random(_errorChance))
             {
-                canError = true;
+                _canError = true;
             }
         }
 
         private void CheckRepeat() // Есть ли потери событий
         {
-            if (Converter.Random(0.9))
-                isRepeat = true;
+            if (_converter.Random(0.9))
+                _isRepeat = true;
             else
-                isRepeat = false;
+                _isRepeat = false;
         }
 
         private void CheckRs()  //Есть ли ошибка в журнале
         {
-            if (canError && !_arrays.onlyStatus && Converter.Random(0.0001))
+            if (_canError && !_arrays.onlyStatus && _converter.Random(0.0001))
             {
                 _arrays.onlyStatus = true;
             }
@@ -76,31 +77,31 @@ namespace generator
 
         private string GetEventF() //Получить событие
         {
-            var pattern = $"AE:{ae} n={_fileTemplate.N} cnt.s={cnts} cnt.l={cntl} kind={_fileTemplate.Kind} id=\"{Guid.NewGuid()}\" qa=\"{_shortProcess.Qa}\" " +
+            var pattern = $"AE:{_ae} n={_fileTemplate.N} cnt.s={_cnts} cnt.l={_cntl} kind={_fileTemplate.Kind} id=\"{Guid.NewGuid()}\" qa=\"{_shortProcess.Qa}\" " +
                 $"sid=\"{_shortProcess.Ssid}\" un=\"{_shortProcess.User}\" et={_fileTemplate.Time} dn=\"{_fileTemplate.Dn}\" dd=\"{_fileTemplate.Dd}\" rs=\"{_arrays.Rs}\" " +
                 $"inn=\"{_arrays.Inn}\" " +
                 $"fid=\"{_arrays.Fid}\" ";
             
             RandomInc();
             CheckRs();
-            ae++;
+            _ae++;
             return pattern;
         }
 
         public void ChangeFile() //обнулить инфу при смене файла
         {   //при изменении файла
-            ae = 0;
-            fileIndex++;
+            _ae = 0;
+            _fileIndex++;
             CheckRepeat();
         }
 
         public void ChangeLog() // обнулить инфу при изменении журнала
         {
-            cnts = 1;
-            cntl = 0;
-            fileIndex = 0;
+            _cnts = 1;
+            _cntl = 0;
+            _fileIndex = 0;
             _arrays.onlyStatus = false;
-            jIndex++;
+            _jIndex++;
             _shortProcess.ChangeFirstLevel();
             CheckCanError();
         }
@@ -108,16 +109,16 @@ namespace generator
 
         private void RandomInc()   // рандомное повторение cnts (потеря события)
         {
-            if (Converter.Random(repeatChance)) 
-                countRepeat = new Random().Next(1, 4);
-            if (isRepeat && countRepeat>0)  cntl++; else cnts++;
-            if (countRepeat>0) countRepeat--;
+            if (_converter.Random(_repeatChance))
+                _countRepeat = new Random().Next(1, 4);
+            if (_isRepeat && _countRepeat > 0) _cntl++; else _cnts++;
+            if (_countRepeat > 0) _countRepeat--;
         }
 
         private string GetHead()
         {
             return $"LI:{filename} l.MachineName={_shortProcess.MachineName} " +
-                $"l.ProcessName={_fileTemplate.ProcessName} l.CommandLine=\"{_fileTemplate.CommandLine}\" l.Id={jIndex} " +
+                $"l.ProcessName={_fileTemplate.ProcessName} l.CommandLine=\"{_fileTemplate.CommandLine}\" l.Id={_jIndex} " +
                 $"l.StartTime=\"{DateTime.Now}\"";
         }
 

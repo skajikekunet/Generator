@@ -1,4 +1,5 @@
-﻿using generator.Interfaces.Templates;
+﻿using generator.Interfaces;
+using generator.Interfaces.Templates;
 using Microsoft.Extensions.Configuration;
 using System;
 
@@ -7,47 +8,47 @@ namespace generator
     class FileTemplate: IFileTemplate
     {
         
-        public string ProcessName { get; }
-        public string N { get; }
-        public string Kind { get; }
+        public string ProcessName { get => _processName; }
+        public string N { get => _n; }
+        public string Kind { get => _kind; }
 
-        public string CommandLine { get; }
-        public string Dn { get; }
-        public string Dd { get; }
+        public string CommandLine { get => _commandLine; }
+        public string Dn { get => _dn; }
+        public string Dd { get => _dd; }
         public string Time { get => AddTime(); } // время создания события time;
 
 
 
-        private string processName;
-        private string n;
-        private string kind;
+        private string _processName;
+        private string _n;
+        private string _kind;
 
-        private string commandLine;
-        private string dn;
-        private string dd;
-        private int eventTimeMin;
-        private int eventTimeMax;
-        private long time;
+        private string _commandLine;
+        private string _dn;
+        private string _dd;
+        private int _eventTimeMin;
+        private int _eventTimeMax;
+        private long _time;
 
-        public FileTemplate(IConfiguration Configuration)
+        public FileTemplate(IConfiguration configuration, IConverter converter )
         {
-            n = Configuration["N"];
-            kind = Configuration["Kind"];
-            commandLine = Configuration["CommandLine"];
-            dn = Configuration["Dn"];
-            dd = Configuration["Dd"];
-            processName = Configuration["ProcessName"];
+            _n = configuration["N"];
+            _kind = configuration["Kind"];
+            _commandLine = configuration["CommandLine"];
+            _dn = configuration["Dn"];
+            _dd = configuration["Dd"];
+            _processName = configuration["ProcessName"];
 
-            eventTimeMin = Converter.ConverToInt(Configuration["TimeEventMin"]);
-            eventTimeMax = Converter.ConverToInt(Configuration["TimeEventMax"]);
+            _eventTimeMin = converter.ConverToInt(configuration["TimeEventMin"]);
+            _eventTimeMax = converter.ConverToInt(configuration["TimeEventMax"]);
 
-            time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            _time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
 
         public string AddTime()
         {
-            time +=new Random().Next(eventTimeMin, eventTimeMax + 1);
-            return "" + time;
+            _time +=new Random().Next(_eventTimeMin, _eventTimeMax + 1);
+            return "" + _time;
         }
 
     }

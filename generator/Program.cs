@@ -2,12 +2,13 @@
 using Autofac.Configuration;
 using Autofac.Extensions.DependencyInjection;
 using generator.Host;
+using generator.Log;
 using generator.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog;
+using ServiceStack.Text;
 using System;
 using System.IO;
 
@@ -17,7 +18,7 @@ namespace generator
 
     class Program
     {
-        private static string ConfigFile = "appsettings.json";
+        private static string _сonfigFile = "appsettings.json";
        
         static void Main(string[] args)
         {
@@ -30,19 +31,16 @@ namespace generator
 
         }
 
-        public static IHost CreateHostBuilder(string[] args)
-        {
-            return new HostBuilder()
+        public static IHost CreateHostBuilder(string[] args) => new HostBuilder()
                   .ConfigureHostConfiguration(configurationBuilder =>
                   {
-                      configurationBuilder
-                       .AddEnvironmentVariables("DOTNET_");
+                      configurationBuilder  
+                        .AddEnvironmentVariables("DOTNET_");
                   })
-               
                   .ConfigureAppConfiguration((context, configurationBuilder) =>
                   {
                       configurationBuilder
-                        .AddJsonFile(ConfigFile)
+                        .AddJsonFile(_сonfigFile)
                         .AddEnvironmentVariables();
                   })
 
@@ -50,27 +48,24 @@ namespace generator
                   .ConfigureContainer<ContainerBuilder>((context, containerBuilder) =>
                   {
                       containerBuilder.RegisterModule(new ConfigurationModule(context.Configuration));
+
                       containerBuilder.RegisterModule(new ExcelModule());
+                      containerBuilder.RegisterModule(new ConverterModule());
                   })
                   .UseContentRoot(Directory.GetCurrentDirectory())
-          
+
                   .ConfigureLogging((context, logging) =>
                   {
-                     var env = context.HostingEnvironment;
                       logging.AddConfiguration(context.Configuration.GetSection("Logging"));
-                      
                       logging.ClearProviders();
-                      logging.AddEventSourceLogger();
-                      logging.AddDebug();
-                      
-  
+                      logging.AddConsole();
+                      logging.AddProvider(new FileLoggerProvider("log.txt"));
                   })
                    .ConfigureServices((context, services) =>
-                 {
+                   {
                      services.AddHostedService<MainHostService>();
-                 })
+                   })
                    .Build();
-        }
 
     }
 }

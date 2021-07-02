@@ -1,4 +1,6 @@
-﻿using System;
+﻿using generator.Host;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using static generator.Excel;
@@ -7,7 +9,7 @@ namespace generator.Interfaces
 {
     public interface IExcel
     {
-        void LoadInfo(string path);
+        void LoadInfo(string path, ILogger<MainHostService> log);
         bool ErrorRead { get;}
 
         string[] Inn { get; set; }

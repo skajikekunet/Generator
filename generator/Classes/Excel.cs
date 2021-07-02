@@ -1,9 +1,11 @@
 ﻿
 using Autofac;
+using generator.Host;
 using generator.Interfaces;
 using generator.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -34,8 +36,8 @@ namespace generator
     public class Excel: IExcel
     {
         //public bool errorRead = false; //ошибка чтения файла
-        public bool ErrorRead { get => errorRead;}
-        private bool errorRead = true;
+        public bool ErrorRead { get => _errorRead;}
+        private bool _errorRead = true;
 
         public string[] Inn { get; set; }
             public string[] Fid { get; set; }
@@ -52,7 +54,7 @@ namespace generator
       
    
 
-        private void Add(OfficeOpenXml.ExcelRange cells)
+        private void Add(OfficeOpenXml.ExcelRange cells, ILogger<MainHostService> log)
             {
                 Rs = new Dictionary<int, Pattern>();
                 MachineName = new Dictionary<int, Pattern>();
@@ -66,7 +68,7 @@ namespace generator
                     var i = 2;
                     while (cells[i, row].Value != null)
                     {
-                    Console.WriteLine("" + cells[i, row].Value);
+                    log.LogInformation("" + cells[i, row].Value);
                         switch (row)
                         {
                             case 3:
@@ -91,13 +93,13 @@ namespace generator
                 }
             }
 
-            public void LoadInfo(string path) //Загрузка массивов inn, fid, rs, sp
-        {
+            public void LoadInfo(string path, ILogger<MainHostService> log) //Загрузка массивов inn, fid, rs, sp
+            {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             using (Stream file = new FileStream(path, FileMode.Open))
             {
-                Console.WriteLine("Процесс считывания данных с Excel");
+                log.LogInformation("Процесс считывания данных с Excel");
                 try
                 {
                     ExcelPackage package = new ExcelPackage(file);
@@ -119,7 +121,7 @@ namespace generator
                     Fid = new string[--fid_size];
                     #endregion
 
-                    Add(sheet.Cells);
+                    Add(sheet.Cells, log);
                
 
                    for (int i = 0; i < inn_size - 1; i++)
@@ -135,8 +137,8 @@ namespace generator
                     }
 
                     file.Close();
-                    Console.WriteLine("Данные считаны");
-                    errorRead = false;
+                    log.LogInformation("Данные считаны");
+                    _errorRead = false;
 
                   /*  _host.ConfigureContainer<ContainerBuilder>((context, containerBuilder) =>
                     {
@@ -146,7 +148,7 @@ namespace generator
                     });*/
                 } catch
                 {
-                    Console.WriteLine("Ошибка считывания данных с Excel");
+                    log.LogError("Ошибка считывания данных с Excel");
                 }
                 finally
                 {
@@ -156,13 +158,13 @@ namespace generator
         
         }
 
-        private void CheckErrors()
+       /* private void CheckErrors(ILogger<MainHostService> log)
         {
             if (Ssid.Count != Users.Count)
             {
-                Console.WriteLine("Ошикба чтения данных с Excel");
+                log.LogError("Ошикба чтения данных с Excel");
                 errorRead = true;
             }
-        }
+        }*/
     }
 }

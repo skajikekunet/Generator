@@ -9,59 +9,61 @@ namespace generator.Templates
     {
         public string Qa { get => RandomQaChange(); }
 
-        public string MachineName { get => machinename; }
-        public string Ssid { get { if (user_id < _excel.Ssid.Count) return _excel.Ssid[user_id].Name; else return _excel.Ssid[0].Name; } }
-        public string User { get { ChangeSecondLevel(); return _excel.Users[user_id].Name; } }
+        public string MachineName { get => _machinename; }
+        public string Ssid { get { if (_user_id < _excel.Ssid.Count) return _excel.Ssid[_user_id].Name; else return _excel.Ssid[0].Name; } }
+        public string User { get { ChangeSecondLevel(); return _excel.Users[_user_id].Name; } }
 
-        private string machinename;
-        private string qa;
-        private int user_id =0;
-        private double QaChange;
-        private double UserChance;
-        private int qaCounter = 0;
+        private string _machinename;
+        private string _qa;
+        private int _user_id = 0;
+        private double _qaChange;
+        private double _userChance;
+        private int _qaCounter = 0;
 
         private readonly IExcel _excel;
-        public ShortProcess(IConfiguration Configuration, IExcel excel)
+        private readonly IConverter _converter;
+        public ShortProcess(IConfiguration Configuration, IExcel excel, IConverter converter)
         {
-            QaChange = Converter.ConverToDouble(Configuration["ChangeQa"]);
-            UserChance = Converter.ConverToDouble(Configuration["UserChance"]);
+            _converter = converter;
+            _qaChange = converter.ConverToDouble(Configuration["ChangeQa"]);
+            _userChance = converter.ConverToDouble(Configuration["UserChance"]);
             _excel = excel;
-           // Console.WriteLine("" + _excel.ErrorRead);
-            user_id = new Random().Next(0, _excel.Users.Count);
+            // Console.WriteLine("" + _excel.ErrorRead);
+            _user_id = new Random().Next(0, _excel.Users.Count);
             ChangeFirstLevel();
            
         }
 
         public void ChangeFirstLevel()
         {
-            machinename = _excel.MachineName[new Random().Next(0, _excel.MachineName.Count)].Name;
-            qa = _excel.Qa[new Random().Next(0, _excel.Qa.Count)].Name;
+            _machinename = _excel.MachineName[new Random().Next(0, _excel.MachineName.Count)].Name;
+            _qa = _excel.Qa[new Random().Next(0, _excel.Qa.Count)].Name;
         }
 
         public void ChangeSecondLevel()
         {
-            if (Converter.Random(UserChance))
+            if (_converter.Random(_userChance))
             {
-                user_id = new Random().Next(0, _excel.Users.Count);
+                _user_id = new Random().Next(0, _excel.Users.Count);
             }
             
         }
 
         public string RandomQaChange()
         {
-            if (qaCounter>0 || Converter.Random(QaChange))
+            if (_qaCounter>0 || _converter.Random(_qaChange))
             {
-                qaCounter = new Random().Next(0, _excel.Qa.Count);
-                var str = _excel.Qa[qaCounter].Name;
-                if (Converter.Random(0.5))
+                _qaCounter = new Random().Next(0, _excel.Qa.Count);
+                var str = _excel.Qa[_qaCounter].Name;
+                if (_converter.Random(0.5))
                 {
-                    qaCounter = 0;
+                    _qaCounter = 0;
                 }
                 return str;
             }
             else
             {
-                return qa;
+                return _qa;
             }
         }
     }

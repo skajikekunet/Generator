@@ -1,4 +1,5 @@
-﻿using generator.Interfaces.Templates;
+﻿using generator.Interfaces;
+using generator.Interfaces.Templates;
 using Microsoft.Extensions.Configuration;
 using System;
 
@@ -6,28 +7,28 @@ namespace generator
 {
     class Options: IOption //основные параметры конфига
     {
-        private int countJ = 0; //Кол-во журналов
-        private int minFiles = 0; //Кол-во файлов
-        private int maxFiles = 0;
+        private int _countJ = 0; //Кол-во журналов
+        private int _minFiles = 0; //Кол-во файлов
+        private int _maxFiles = 0;
 
-        private int minEvents = 0;
-        private int maxEvents = 0;
-        private int step = 1;
-        public int CountFiles { get { return new Random().Next(minFiles, maxFiles + 1); } }
-        public int CountEvents { get { return (int)Math.Floor((double)(new Random().Next(minEvents, maxEvents + 1) / step)) * step; } }
+        private int _minEvents = 0;
+        private int _maxEvents = 0;
+        private int _step = 1;
+        public int CountFiles { get { return new Random().Next(_minFiles, _maxFiles + 1); } }
+        public int CountEvents { get { return (int)Math.Floor((double)(new Random().Next(_minEvents, _maxEvents + 1) / _step)) * _step; } }
 
-        public int CountJournals { get => countJ; }
+        public int CountJournals { get => _countJ; }
 
 
-        public Options(IConfiguration config)
+        public Options(IConfiguration config, IConverter converter)
         {
-            countJ = Converter.ConverToInt(config["Journal"]);
-            minFiles = Converter.ConverToInt(config["MinJournalFile"]);
-            maxFiles = Converter.ConverToInt(config["MaxJournalFile"]);
+            _countJ = converter.ConverToInt(config["Journal"]);
+            _minFiles = converter.ConverToInt(config["MinJournalFile"]);
+            _maxFiles = converter.ConverToInt(config["MaxJournalFile"]);
 
-            minEvents = Converter.ConverToInt(config["MinEvents"]);
-            maxEvents = Converter.ConverToInt(config["MaxEvents"]);
-            step = Converter.ConverToInt(config["Step"]);
+            _minEvents = converter.ConverToInt(config["MinEvents"]);
+            _maxEvents = converter.ConverToInt(config["MaxEvents"]);
+            _step = converter.ConverToInt(config["Step"]);
         }
     }
 }

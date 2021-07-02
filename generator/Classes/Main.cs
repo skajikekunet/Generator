@@ -1,6 +1,8 @@
-﻿using generator.Interfaces;
+﻿using generator.Host;
+using generator.Interfaces;
 using generator.Interfaces.Templates;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,45 +12,52 @@ namespace generator.Classes
 {
     class Main: IMain
     {
-        private readonly IConfiguration Configuration;
+        private readonly IConfiguration _сonfiguration;
         private readonly IExcel _excel;
+        private readonly ILogger<MainHostService> _log;
 
         private IEvent _event;
         private IOption _option;
 
         private int TotalCountEvents = 0;
 
-        public Main(IConfiguration config, IExcel excel)
+        public Main(IConfiguration config, IExcel excel, IConverter converter, ILogger<MainHostService> log)
         {
-            Configuration = config;
+            _log = log;
+            _сonfiguration = config;
             _excel = excel;
-            _event = new Event(config, excel);
-            _option = new Options(config);
+            _event = new Event(config, excel, converter);
+            _option = new Options(config, converter);
         }
         #region Процесс генерации
         public void Start()
         {
-            
-
             for (int i = 0; i < _option.CountJournals; i++)
             {
                 _event.FileName = Guid.NewGuid().ToString();//Названия журнала
-                Console.WriteLine("Журнал: " + _event.FileName);
+                _log.LogInformation("Журнал: " + _event.FileName);
+
+                if (!Directory.Exists(_сonfiguration["OutputPath"])) Directory.CreateDirectory(_сonfiguration["OutputPath"]);
+
                 for (int j = 0; j < _option.CountFiles; j++)
                 {
-                    using (var file = new StreamWriter($"{Configuration["OutputPath"]}\\{ _event.FileName}#{j}.slog"))
+                    try
                     {
-                        file.WriteLine(_event.Head); //Заголовог файла
-                        for (int k = 0; k < _option.CountEvents; k++)
+                        using (var file = new StreamWriter($"{_сonfiguration["OutputPath"]}\\{ _event.FileName}#{j}.slog"))
                         {
-                            file.WriteLine(_event.GetEvent); // Вывести событие
-                            TotalCountEvents++;
+                            file.WriteLine(_event.Head); //Заголовог файла
+                            for (int k = 0; k < _option.CountEvents; k++)
+                            {
+                                file.WriteLine(_event.GetEvent); // Вывести событие
+                                TotalCountEvents++;
+                            }
+                            file.WriteLine(_event.Tail); //Написать хвост файла
+                            _event.ChangeFile(); // Сменить файл
+                            file.Close();
+                            _log.LogInformation($"\t Создан файл: #{j,3} \t кол-во событий: {_option.CountEvents}");
                         }
-                        file.WriteLine(_event.Tail); //Написать хвост файла
-                        _event.ChangeFile(); // Сменить файл
-                        file.Close();
-                        Console.WriteLine($"\t Создан файл: #{j,3} \t кол-во событий: {_option.CountEvents}");
                     }
+                    catch { }
 
                 }
                 _event.ChangeLog(); // Сменить журнал
@@ -60,29 +69,29 @@ namespace generator.Classes
         #region Статистика
         public void GetStat()
         {
-            Console.WriteLine("Общее количество сгенерированных событий: " + TotalCountEvents);
-            Console.WriteLine("rs:");
+            _log.LogInformation("Общее количество сгенерированных событий: " + TotalCountEvents);
+            _log.LogInformation("rs:");
             foreach (Pattern i in _excel.Rs.Values)
             {
-                Console.WriteLine($"{i.Inc,4} \t {i.name}");
+                _log.LogInformation($"{i.Inc,4} \t {i.name}");
             }
 
-            Console.WriteLine("Users:");
+            _log.LogInformation("Users:");
             foreach (Pattern i in _excel.Users.Values)
             {
-                Console.WriteLine($"{i.Inc,4} \t {i.name}");
+                _log.LogInformation($"{i.Inc,4} \t {i.name}");
             }
 
-            Console.WriteLine("qa:");
+            _log.LogInformation("qa:");
             foreach (Pattern i in _excel.Qa.Values)
             {
-                Console.WriteLine($"{i.Inc,4} \t {i.name}");
+                _log.LogInformation($"{i.Inc,4} \t {i.name}");
             }
 
-            Console.WriteLine("MachineName:");
+            _log.LogInformation("MachineName:");
             foreach (Pattern i in _excel.MachineName.Values)
             {
-                Console.WriteLine($"{i.Inc,4} \t {i.name}");
+                _log.LogInformation($"{i.Inc,4} \t {i.name}");
             }
         }
         #endregion 
